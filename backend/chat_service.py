@@ -1,7 +1,7 @@
 """Gemini-powered chat service for the portfolio.
 
-Uses the emergentintegrations LlmChat wrapper. Each session_id gets its own
-LlmChat instance (the library manages multi-turn history internally).
+Uses Gemini's public REST API directly so deployment does not depend on
+third-party wrappers that may be unavailable in some runtimes.
 """
 
 from __future__ import annotations
@@ -10,22 +10,16 @@ import asyncio
 import logging
 import os
 import random
-from typing import Any, Dict, Tuple
+from typing import Dict, List, Tuple
 
-try:
-    from emergentintegrations.llm.chat import LlmChat, UserMessage
-except Exception:  # pragma: no cover - optional dependency
-    LlmChat = Any  # type: ignore[assignment]
-    UserMessage = None
+import httpx
 
 from grounding import build_system_prompt, prime_repo_cache
 
 logger = logging.getLogger(__name__)
 
-_HAS_EMERGENT = UserMessage is not None
-
-# session_id -> (chat instance, current model used)
-_SESSIONS: Dict[str, Tuple[LlmChat, str]] = {}
+# session_id -> (conversation history, current model used)
+_SESSIONS: Dict[str, Tuple[List[dict], str]] = {}
 _SYSTEM_PROMPT: str | None = None
 
 # Primary + fallback models. If the primary 503s, we transparently fall back.
@@ -48,21 +42,59 @@ def _get_api_key() -> str:
     return key
 
 
-def _make_chat(session_id: str, system_prompt: str, model: str) -> LlmChat:
-    return LlmChat(
-        api_key=_get_api_key(),
-        session_id=session_id,
-        system_message=system_prompt,
-    ).with_model("gemini", model)
-
-
-async def get_or_create_chat(session_id: str) -> Tuple[LlmChat, str]:
+async def get_or_create_chat(session_id: str) -> Tuple[List[dict], str]:
     if session_id in _SESSIONS:
         return _SESSIONS[session_id]
     system_prompt = await _ensure_ready()
-    chat = _make_chat(session_id, system_prompt, PRIMARY_MODEL)
-    _SESSIONS[session_id] = (chat, PRIMARY_MODEL)
+    _SESSIONS[session_id] = (
+        [{"role": "system", "text": system_prompt}],
+        PRIMARY_MODEL,
+    )
     return _SESSIONS[session_id]
+
+
+def _to_gemini_contents(history: List[dict], user_text: str) -> List[dict]:
+    contents: List[dict] = []
+    for item in history:
+        if item["role"] == "system":
+            contents.append(
+                {
+                    "role": "user",
+                    "parts": [{"text": f"System instruction:\n{item['text']}"}],
+                }
+            )
+            continue
+        role = "user" if item["role"] == "user" else "model"
+        contents.append({"role": role, "parts": [{"text": item["text"]}]})
+
+    contents.append({"role": "user", "parts": [{"text": user_text}]})
+    return contents
+
+
+async def _call_gemini(model: str, history: List[dict], user_text: str) -> str:
+    api_key = _get_api_key()
+    url = (
+        "https://generativelanguage.googleapis.com/v1beta/models/"
+        f"{model}:generateContent?key={api_key}"
+    )
+    payload = {
+        "contents": _to_gemini_contents(history, user_text),
+        "generationConfig": {"temperature": 0.4, "maxOutputTokens": 350},
+    }
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        resp = await client.post(url, json=payload)
+        resp.raise_for_status()
+        data = resp.json()
+
+    candidates = data.get("candidates") or []
+    if not candidates:
+        raise RuntimeError("Gemini returned no candidates")
+    parts = candidates[0].get("content", {}).get("parts", [])
+    text_parts = [p.get("text", "") for p in parts if isinstance(p, dict)]
+    reply = "".join(text_parts).strip()
+    if not reply:
+        raise RuntimeError("Gemini returned an empty response")
+    return reply
 
 
 def _is_overloaded(exc: Exception) -> bool:
@@ -77,22 +109,18 @@ def _is_overloaded(exc: Exception) -> bool:
 
 
 async def send_chat(session_id: str, text: str) -> str:
-    if not _HAS_EMERGENT:
-        return (
-            "AI chat backend is online, but the LLM integration package is not "
-            "available in this deployment yet."
-        )
-
-    chat, current_model = await get_or_create_chat(session_id)
-    system_prompt = await _ensure_ready()
-    msg = UserMessage(text=text)
+    history, current_model = await get_or_create_chat(session_id)
+    await _ensure_ready()
 
     # Try primary up to 3 times with small backoff, then fall back.
     last_exc: Exception | None = None
     for attempt in range(3):
         try:
-            response = await chat.send_message(msg)
-            return response if isinstance(response, str) else str(response)
+            response = await _call_gemini(current_model, history, text)
+            history.append({"role": "user", "text": text})
+            history.append({"role": "assistant", "text": response})
+            _SESSIONS[session_id] = (history, current_model)
+            return response
         except Exception as exc:  # pragma: no cover - network
             last_exc = exc
             if not _is_overloaded(exc):
@@ -108,10 +136,11 @@ async def send_chat(session_id: str, text: str) -> str:
     for fb in FALLBACK_MODELS:
         try:
             logger.warning("Falling back to %s", fb)
-            fb_chat = _make_chat(session_id, system_prompt, fb)
-            response = await fb_chat.send_message(msg)
-            _SESSIONS[session_id] = (fb_chat, fb)
-            return response if isinstance(response, str) else str(response)
+            response = await _call_gemini(fb, history, text)
+            history.append({"role": "user", "text": text})
+            history.append({"role": "assistant", "text": response})
+            _SESSIONS[session_id] = (history, fb)
+            return response
         except Exception as exc:  # pragma: no cover
             last_exc = exc
             if not _is_overloaded(exc):
