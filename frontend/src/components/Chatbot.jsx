@@ -23,6 +23,17 @@ const SUGGESTIONS = [
 
 const storageKey = "sg_chat_session";
 
+const getFriendlyErrorText = (err) => {
+  const status = err?.response?.status;
+  if (status === 429 || status === 503) {
+    return "The AI is busy right now. Try again in a moment.";
+  }
+  if (status === 504) {
+    return "The AI is taking too long to respond. Please retry shortly.";
+  }
+  return "Something went wrong reaching the AI. Try again in a moment.";
+};
+
 const Chatbot = () => {
   const [open, setOpen] = useState(false);
   const [teaser, setTeaser] = useState(true);
@@ -92,13 +103,12 @@ const Chatbot = () => {
         { role: "assistant", text: data.reply || "(no response)" },
       ]);
     } catch (err) {
-      const detail =
-        err?.response?.data?.detail || err?.message || "Unknown error";
+      const detail = getFriendlyErrorText(err);
       setMessages((m) => [
         ...m,
         {
-          role: "assistant",
-          text: `Something went wrong reaching the AI: ${detail}. Try again in a moment, or email sagargurav1812@gmail.com.`,
+          role: "assistant", 
+          text: `${detail} If it keeps happening, email sagargurav1812@gmail.com.`,
           error: true,
         },
       ]);
