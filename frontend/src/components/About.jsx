@@ -1,6 +1,6 @@
 import React from "react";
 import { profile, stats, education } from "../data/mock";
-import { GraduationCap } from "lucide-react";
+import { GraduationCap, Radio } from "lucide-react";
 
 const About = () => {
   return (
@@ -14,6 +14,28 @@ const About = () => {
             <h2 className="section-title">
               An engineer who enjoys turning messy data into useful products.
             </h2>
+
+            {/* 'Now training' card */}
+            <div className="mt-8 card p-5 relative overflow-hidden">
+              <div className="absolute inset-x-0 top-0 h-px shimmer" />
+              <div className="flex items-center gap-2 text-xs font-mono text-[var(--text-dim)] uppercase tracking-widest">
+                <Radio size={13} className="text-[var(--accent)] animate-pulse" />
+                Now training
+              </div>
+              <div className="mt-2 font-display text-[var(--text)]">
+                Person Re-ID &mdash; epoch 47 / 80
+              </div>
+              <div className="mt-3 h-1.5 rounded-full bg-[var(--bg-elev)] overflow-hidden">
+                <div
+                  className="h-full bg-[var(--accent)] rounded-full"
+                  style={{ width: "59%" }}
+                />
+              </div>
+              <div className="mt-3 flex items-center justify-between font-mono text-[11px] text-[var(--text-dim)]">
+                <span>val/acc 0.871</span>
+                <span>ETA 08:42</span>
+              </div>
+            </div>
           </div>
 
           <div className="lg:col-span-7 space-y-6 text-[var(--text-muted)] leading-relaxed">

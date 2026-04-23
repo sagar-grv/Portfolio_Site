@@ -1,7 +1,11 @@
 import React, { useState } from "react";
+import axios from "axios";
 import { profile } from "../data/mock";
 import { Github, Linkedin, Mail, Instagram, BookOpen, Send, ArrowRight } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "";
+const API = `${BACKEND_URL}/api`;
 
 const Contact = () => {
   const { toast } = useToast();
@@ -11,7 +15,7 @@ const Contact = () => {
   const handleChange = (e) =>
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.name || !form.email || !form.message) {
       toast({
@@ -21,19 +25,22 @@ const Contact = () => {
       return;
     }
     setSubmitting(true);
-    // Save to localStorage as mock persistence
-    const stored = JSON.parse(localStorage.getItem("sg_messages") || "[]");
-    stored.push({ ...form, at: new Date().toISOString() });
-    localStorage.setItem("sg_messages", JSON.stringify(stored));
-
-    setTimeout(() => {
-      setSubmitting(false);
+    try {
+      await axios.post(`${API}/contact`, form);
       setForm({ name: "", email: "", message: "" });
       toast({
         title: "Message sent",
         description: "Thanks for reaching out! I'll get back within 24h.",
       });
-    }, 700);
+    } catch (err) {
+      const detail = err?.response?.data?.detail || err?.message || "Unknown error";
+      toast({
+        title: "Could not send",
+        description: detail,
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -134,7 +141,7 @@ const Contact = () => {
             </div>
             <div className="mt-5 flex items-center justify-between">
               <p className="text-xs text-[var(--text-dim)] font-mono">
-                Your message stays in this browser (mock). Wire the API up next.
+                Your message is stored securely. I reply within 24 hours.
               </p>
               <button
                 type="submit"

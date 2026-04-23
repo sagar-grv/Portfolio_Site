@@ -1,17 +1,34 @@
 import React from "react";
-import { ArrowDown, Github, Linkedin, MapPin, Sparkles } from "lucide-react";
+import {
+  ArrowDown,
+  Github,
+  Linkedin,
+  MapPin,
+  Sparkles,
+  Zap,
+} from "lucide-react";
 import { profile, heroTerminal } from "../data/mock";
+import NeuralBackground from "./NeuralBackground";
+import LiveMetrics from "./LiveMetrics";
 
 const Hero = () => {
   return (
-    <section id="top" className="relative overflow-hidden pt-36 pb-20 md:pt-44 md:pb-28 spotlight noise">
-      <div className="absolute inset-0 grid-bg opacity-60 pointer-events-none" />
-      <div className="absolute -top-32 -right-32 w-[480px] h-[480px] rounded-full bg-[var(--accent-soft)] blur-3xl pointer-events-none" />
+    <section
+      id="top"
+      className="relative overflow-hidden pt-36 pb-20 md:pt-44 md:pb-28 spotlight noise"
+    >
+      {/* Animated neural network */}
+      <div className="absolute inset-0">
+        <NeuralBackground />
+      </div>
+      <div className="absolute inset-0 grid-bg opacity-40 pointer-events-none" />
+      <div className="absolute -top-32 -right-32 w-[520px] h-[520px] rounded-full bg-[var(--accent-soft)] blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[var(--bg)] to-transparent pointer-events-none" />
 
       <div className="container-x relative">
         <div className="grid lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-7 fade-up">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[var(--border)] bg-[var(--bg-elev)]/60 backdrop-blur text-xs font-mono text-[var(--text-muted)]">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[var(--border)] bg-[var(--bg-elev)]/70 backdrop-blur text-xs font-mono text-[var(--text-muted)]">
               <span className="relative flex w-2 h-2">
                 <span className="absolute inline-flex w-full h-full rounded-full bg-[var(--accent)] opacity-60 animate-ping" />
                 <span className="relative inline-flex w-2 h-2 rounded-full bg-[var(--accent)]" />
@@ -21,7 +38,11 @@ const Hero = () => {
 
             <h1 className="font-display font-semibold mt-6 text-[clamp(2.5rem,6vw,4.75rem)] leading-[1.02] tracking-[-0.02em]">
               Hi, I&apos;m{" "}
-              <span className="text-[var(--accent)]">Sagar</span>.
+              <span className="relative inline-block">
+                <span className="text-[var(--accent)]">Sagar</span>
+                <span className="absolute -right-3 top-0 text-[var(--accent)] caret-bar" />
+              </span>
+              .
               <br />
               <span className="text-[var(--text-muted)]">I build </span>
               <span className="text-[var(--text)]">AI that ships.</span>
@@ -39,13 +60,19 @@ const Hero = () => {
                 Get in touch
                 <ArrowDown size={16} className="rotate-[-90deg]" />
               </a>
+              <span className="hidden md:inline-flex items-center gap-1.5 ml-2 text-xs font-mono text-[var(--text-dim)]">
+                <Zap size={12} className="text-[var(--accent)]" />
+                Ask my AI anything
+                <span className="ml-1">↘</span>
+              </span>
             </div>
 
-            <div className="mt-10 flex items-center gap-5 text-sm text-[var(--text-muted)]">
+            <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[var(--text-muted)]">
               <span className="inline-flex items-center gap-2">
-                <MapPin size={14} className="text-[var(--accent)]" /> {profile.location}
+                <MapPin size={14} className="text-[var(--accent)]" />{" "}
+                {profile.location}
               </span>
-              <span className="w-px h-4 bg-[var(--border-strong)]" />
+              <span className="hidden md:inline w-px h-4 bg-[var(--border-strong)]" />
               <a
                 href={profile.socials.github}
                 target="_blank"
@@ -59,15 +86,22 @@ const Hero = () => {
                 href={profile.socials.linkedin}
                 target="_blank"
                 rel="noreferrer"
-                className="hidden md:inline-flex items-center gap-2 hover:text-[var(--accent)] transition"
+                className="inline-flex items-center gap-2 hover:text-[var(--accent)] transition"
               >
                 <Linkedin size={14} /> LinkedIn
               </a>
             </div>
+
+            <div className="mt-10 max-w-xl">
+              <LiveMetrics />
+            </div>
           </div>
 
-          <div className="lg:col-span-5 fade-up" style={{ animationDelay: "120ms" }}>
-            <div className="card overflow-hidden shadow-[0_10px_60px_-20px_rgba(0,0,0,0.6)]">
+          <div
+            className="lg:col-span-5 fade-up"
+            style={{ animationDelay: "120ms" }}
+          >
+            <div className="card overflow-hidden shadow-[0_10px_60px_-20px_rgba(0,0,0,0.6)] relative">
               <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)] bg-[var(--bg-elev)]">
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-[#ff5f56]" />
@@ -108,7 +142,30 @@ const Hero = () => {
                   </div>
                 ))}
               </div>
+
+              {/* Model/data badges to emphasise AI/ML */}
+              <div className="px-4 pb-4 flex flex-wrap gap-2 border-t border-[var(--border)] pt-3 bg-[var(--bg-elev)]/50">
+                {[
+                  "PyTorch",
+                  "Gemini",
+                  "TensorFlow",
+                  "OpenCV",
+                  "LangChain",
+                ].map((t) => (
+                  <span
+                    key={t}
+                    className="text-[10px] font-mono px-1.5 py-0.5 rounded border border-[var(--border)] text-[var(--text-dim)]"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
             </div>
+
+            <p className="mt-4 text-xs font-mono text-[var(--text-dim)] text-center lg:text-right">
+              <span className="text-[var(--accent)]">#</span> currently building:
+              a real-time person re-ID web app
+            </p>
           </div>
         </div>
       </div>
@@ -118,7 +175,10 @@ const Hero = () => {
 
 // Token-based syntax highlighter for the terminal (prevents regex cascade issues)
 function highlight(src) {
-  const esc = src.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const esc = src
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
   const parts = [];
   let i = 0;
   while (i < esc.length) {
@@ -134,7 +194,10 @@ function highlight(src) {
       let j = i;
       while (j < esc.length && /[A-Za-z0-9_]/.test(esc[j])) j++;
       const word = esc.slice(i, j);
-      parts.push({ t: (word === "engineer" || word === "run") ? "kw" : "text", v: word });
+      parts.push({
+        t: word === "engineer" || word === "run" ? "kw" : "text",
+        v: word,
+      });
       i = j;
       continue;
     }

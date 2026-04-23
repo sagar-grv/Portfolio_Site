@@ -118,6 +118,47 @@ code,
   animation: blink 1.05s steps(1) infinite;
 }
 
+/* Thin caret bar next to name */
+.caret-bar {
+  display: inline-block;
+  width: 3px;
+  height: 0.85em;
+  background: var(--accent);
+  animation: blink 1.05s steps(1) infinite;
+}
+
+/* Float animation for subtle elements */
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.floaty { animation: floaty 4.5s ease-in-out infinite; }
+
+/* Glow pulse */
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(163,230,53,0.45); }
+  50% { box-shadow: 0 0 0 12px rgba(163,230,53,0); }
+}
+.glow-pulse { animation: glowPulse 2.2s ease-in-out infinite; }
+
+/* Shimmer bar */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(163, 230, 53, 0.35) 45%,
+    rgba(163, 230, 53, 0.9) 50%,
+    rgba(163, 230, 53, 0.35) 55%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2.8s linear infinite;
+}
+
 /* Marquee */
 @keyframes marquee {
   0% { transform: translateX(0); }

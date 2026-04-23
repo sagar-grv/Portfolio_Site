@@ -38,7 +38,7 @@ const Projects = () => {
             return (
               <article
                 key={p.id}
-                className="card group p-6 md:p-7 hover:border-[var(--border-strong)] relative overflow-hidden"
+                className="card card-lift group p-6 md:p-7 relative overflow-hidden"
               >
                 <div
                   className="absolute -top-24 -right-24 w-56 h-56 rounded-full blur-3xl opacity-25 group-hover:opacity-40 transition-opacity"
