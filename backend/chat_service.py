@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 # session_id -> (conversation history, current model used)
 _SESSIONS: Dict[str, Tuple[List[dict], str]] = {}
 _SYSTEM_PROMPT: str | None = None
+MAX_TURNS = 6
 
 # Primary + fallback models. If the primary 503s, we transparently fall back.
 PRIMARY_MODEL = "gemini-2.5-flash"
@@ -43,14 +44,31 @@ def _get_api_key() -> str:
 
 
 async def get_or_create_chat(session_id: str) -> Tuple[List[dict], str]:
-    if session_id in _SESSIONS:
-        return _SESSIONS[session_id]
     system_prompt = await _ensure_ready()
+    if session_id in _SESSIONS:
+        history, model = _SESSIONS[session_id]
+        # If prompt rules changed between deployments, apply the latest style.
+        if not history or history[0].get("role") != "system":
+            history = [{"role": "system", "text": system_prompt}] + history
+        elif history[0].get("text") != system_prompt:
+            history[0]["text"] = system_prompt
+        _SESSIONS[session_id] = (history, model)
+        return _SESSIONS[session_id]
+
     _SESSIONS[session_id] = (
         [{"role": "system", "text": system_prompt}],
         PRIMARY_MODEL,
     )
     return _SESSIONS[session_id]
+
+
+def _trim_history(history: List[dict]) -> List[dict]:
+    if not history:
+        return history
+    system_msg = history[0] if history[0].get("role") == "system" else None
+    convo = history[1:] if system_msg else history
+    trimmed = convo[-(MAX_TURNS * 2):]
+    return ([system_msg] if system_msg else []) + trimmed
 
 
 def _to_gemini_contents(history: List[dict], user_text: str) -> List[dict]:
@@ -111,6 +129,7 @@ def _is_overloaded(exc: Exception) -> bool:
 async def send_chat(session_id: str, text: str) -> str:
     history, current_model = await get_or_create_chat(session_id)
     await _ensure_ready()
+    history = _trim_history(history)
 
     # Try primary up to 3 times with small backoff, then fall back.
     last_exc: Exception | None = None

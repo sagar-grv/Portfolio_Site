@@ -78,6 +78,11 @@ class ContactMessageCreate(BaseModel):
 
 
 # ---------- Routes ----------
+@app.get("/")
+async def app_root():
+    return {"message": "Sagar portfolio API is up", "api_base": "/api"}
+
+
 @api_router.get("/")
 async def root():
     return {"message": "Sagar portfolio API is up"}
