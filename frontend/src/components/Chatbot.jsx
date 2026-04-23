@@ -12,6 +12,7 @@ import {
 const BACKEND_URL =
   process.env.REACT_APP_BACKEND_URL || "";
 const API = `${BACKEND_URL}/api`;
+const HAS_BACKEND = Boolean(BACKEND_URL.trim());
 
 const SUGGESTIONS = [
   "Summarise Sagar's strongest projects",
@@ -63,6 +64,19 @@ const Chatbot = () => {
     if (!clean || sending) return;
     setMessages((m) => [...m, { role: "user", text: clean }]);
     setInput("");
+
+    if (!HAS_BACKEND) {
+      setMessages((m) => [
+        ...m,
+        {
+          role: "assistant",
+          text:
+            "The AI chat is not connected in this deployment yet. The portfolio itself is live, and this feature can be enabled later once a backend is configured.",
+        },
+      ]);
+      return;
+    }
+
     setSending(true);
     try {
       const res = await axios.post(`${API}/chat`, {
@@ -211,7 +225,9 @@ const Chatbot = () => {
             </div>
             <p className="mt-2 text-[10px] font-mono text-[var(--text-dim)] flex items-center gap-1.5">
               <Sparkles size={10} className="text-[var(--accent)]" />
-              Answers are AI-generated from Sagar&apos;s resume &amp; GitHub — verify anything critical.
+              {HAS_BACKEND
+                ? "Answers are AI-generated from Sagar's resume & GitHub — verify anything critical."
+                : "AI chat is disabled in this deployment until a backend is connected."}
             </p>
           </form>
         </div>

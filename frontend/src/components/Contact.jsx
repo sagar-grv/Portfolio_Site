@@ -6,6 +6,7 @@ import { useToast } from "../hooks/use-toast";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "";
 const API = `${BACKEND_URL}/api`;
+const HAS_BACKEND = Boolean(BACKEND_URL.trim());
 
 const Contact = () => {
   const { toast } = useToast();
@@ -24,6 +25,16 @@ const Contact = () => {
       });
       return;
     }
+
+    if (!HAS_BACKEND) {
+      toast({
+        title: "Contact form unavailable",
+        description:
+          "This deployment is live, but the backend endpoint is not configured yet.",
+      });
+      return;
+    }
+
     setSubmitting(true);
     try {
       await axios.post(`${API}/contact`, form);
@@ -141,7 +152,9 @@ const Contact = () => {
             </div>
             <div className="mt-5 flex items-center justify-between">
               <p className="text-xs text-[var(--text-dim)] font-mono">
-                Your message is stored securely. I reply within 24 hours.
+                {HAS_BACKEND
+                  ? "Your message is stored securely. I reply within 24 hours."
+                  : "Contact form is disabled until the backend is connected."}
               </p>
               <button
                 type="submit"
