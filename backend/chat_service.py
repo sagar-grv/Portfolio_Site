@@ -10,13 +10,19 @@ import asyncio
 import logging
 import os
 import random
-from typing import Dict, Tuple
+from typing import Any, Dict, Tuple
 
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+try:
+    from emergentintegrations.llm.chat import LlmChat, UserMessage
+except Exception:  # pragma: no cover - optional dependency
+    LlmChat = Any  # type: ignore[assignment]
+    UserMessage = None
 
 from grounding import build_system_prompt, prime_repo_cache
 
 logger = logging.getLogger(__name__)
+
+_HAS_EMERGENT = UserMessage is not None
 
 # session_id -> (chat instance, current model used)
 _SESSIONS: Dict[str, Tuple[LlmChat, str]] = {}
@@ -71,6 +77,12 @@ def _is_overloaded(exc: Exception) -> bool:
 
 
 async def send_chat(session_id: str, text: str) -> str:
+    if not _HAS_EMERGENT:
+        return (
+            "AI chat backend is online, but the LLM integration package is not "
+            "available in this deployment yet."
+        )
+
     chat, current_model = await get_or_create_chat(session_id)
     system_prompt = await _ensure_ready()
     msg = UserMessage(text=text)
