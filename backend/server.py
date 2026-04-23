@@ -62,6 +62,15 @@ class ChatResponse(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 
+def _chat_error_response(exc: Exception) -> tuple[int, str]:
+    msg = str(exc).lower()
+    if "429" in msg or "too many requests" in msg or "rate" in msg and "limit" in msg:
+        return 503, "The AI is busy right now. Try again in a moment."
+    if "timeout" in msg or "timed out" in msg:
+        return 504, "The AI is taking too long to respond. Please retry shortly."
+    return 500, "Something went wrong reaching the AI. Try again in a moment."
+
+
 # ---------- Contact model ----------
 class ContactMessage(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -113,7 +122,8 @@ async def chat(req: ChatRequest):
         reply = await send_chat(session_id, req.message)
     except Exception as exc:  # pragma: no cover
         logger.exception("Chat failure")
-        raise HTTPException(status_code=500, detail=f"Chat service error: {exc}")
+        status_code, detail = _chat_error_response(exc)
+        raise HTTPException(status_code=status_code, detail=detail)
 
     # Persist turn in Mongo (best-effort)
     if db is not None:
