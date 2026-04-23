@@ -35,9 +35,8 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
-
-_status_memory: List[StatusCheck] = []
-_contact_memory: List[ContactMessage] = []
+_status_memory = []
+_contact_memory = []
 
 
 # ---------- Status check (template) ----------
