@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException
+from fastapi import FastAPI, APIRouter, HTTPException, Request
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -9,6 +9,8 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
+from collections import defaultdict, deque
+from time import time
 
 from chat_service import send_chat
 from grounding import prime_repo_cache
@@ -37,6 +39,11 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 _status_memory = []
 _contact_memory = []
+
+CHAT_RATE_IP_LIMIT = int(os.environ.get("CHAT_RATE_IP_LIMIT", "20"))
+CHAT_RATE_SESSION_LIMIT = int(os.environ.get("CHAT_RATE_SESSION_LIMIT", "8"))
+CHAT_RATE_WINDOW_SECONDS = int(os.environ.get("CHAT_RATE_WINDOW_SECONDS", "60"))
+_RATE_WINDOWS: dict[str, deque[float]] = defaultdict(deque)
 
 
 # ---------- Status check (template) ----------
@@ -69,6 +76,27 @@ def _chat_error_response(exc: Exception) -> tuple[int, str]:
     if "timeout" in msg or "timed out" in msg:
         return 504, "The AI is taking too long to respond. Please retry shortly."
     return 500, "Something went wrong reaching the AI. Try again in a moment."
+
+
+def _extract_client_ip(request: Request) -> str:
+    xff = request.headers.get("x-forwarded-for", "").strip()
+    if xff:
+        return xff.split(",")[0].strip()
+    if request.client and request.client.host:
+        return request.client.host
+    return "unknown"
+
+
+def _check_rate_limit(key: str, limit: int) -> bool:
+    now = time()
+    bucket = _RATE_WINDOWS[key]
+    cutoff = now - CHAT_RATE_WINDOW_SECONDS
+    while bucket and bucket[0] < cutoff:
+        bucket.popleft()
+    if len(bucket) >= limit:
+        return False
+    bucket.append(now)
+    return True
 
 
 # ---------- Contact model ----------
@@ -116,7 +144,15 @@ async def get_status_checks():
 
 
 @api_router.post("/chat", response_model=ChatResponse)
-async def chat(req: ChatRequest):
+async def chat(req: ChatRequest, request: Request):
+    client_ip = _extract_client_ip(request)
+    session_hint = req.session_id or client_ip
+
+    if not _check_rate_limit(f"ip:{client_ip}", CHAT_RATE_IP_LIMIT):
+        raise HTTPException(status_code=429, detail="Too many chat requests. Please wait a minute and try again.")
+    if not _check_rate_limit(f"session:{session_hint}", CHAT_RATE_SESSION_LIMIT):
+        raise HTTPException(status_code=429, detail="This chat is sending too fast. Please pause briefly and try again.")
+
     session_id = req.session_id or str(uuid.uuid4())
     try:
         reply = await send_chat(session_id, req.message)

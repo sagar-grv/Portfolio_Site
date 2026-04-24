@@ -10,6 +10,7 @@ import asyncio
 import logging
 import os
 import random
+import re
 from typing import Dict, List, Tuple
 
 import httpx
@@ -21,7 +22,11 @@ logger = logging.getLogger(__name__)
 # session_id -> (conversation history, current model used)
 _SESSIONS: Dict[str, Tuple[List[dict], str]] = {}
 _SYSTEM_PROMPT: str | None = None
-MAX_TURNS = 6
+MAX_TURNS = int(os.environ.get("CHAT_MAX_TURNS", "4"))
+MAX_INPUT_CHARS = int(os.environ.get("CHAT_MAX_INPUT_CHARS", "600"))
+NVIDIA_MAX_TOKENS = int(os.environ.get("NVIDIA_MAX_TOKENS", "180"))
+NVIDIA_TIMEOUT_SECONDS = float(os.environ.get("NVIDIA_TIMEOUT_SECONDS", "25"))
+NVIDIA_RETRIES = int(os.environ.get("NVIDIA_RETRIES", "2"))
 
 NVIDIA_BASE_URL = os.environ.get("NVIDIA_BASE_URL", "https://integrate.api.nvidia.com/v1").rstrip("/")
 PRIMARY_MODEL = os.environ.get("NVIDIA_MODEL", "meta/llama-3.1-70b-instruct")
@@ -33,6 +38,26 @@ NVIDIA_FALLBACK_MODELS = [
 
 # Gemini is local-only fallback.
 GEMINI_FALLBACK_MODELS = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-3-flash-preview"]
+
+PORTFOLIO_KEYWORDS = {
+    "sagar", "portfolio", "project", "projects", "resume", "cv", "experience",
+    "internship", "skills", "github", "contact", "education", "shopify", "bankassist",
+    "deepfake", "ayush", "synapse", "re-identification", "certification", "achievement",
+}
+
+OFF_TOPIC_HINTS = {
+    "weather", "temperature", "sports", "cricket", "football", "movie", "recipe",
+    "stock", "bitcoin", "news", "capital of", "who is the president", "translate",
+    "solve this math", "write code", "politics",
+}
+
+INJECTION_PATTERNS = [
+    re.compile(r"ignore\s+(all\s+)?(previous|prior)\s+instructions", re.IGNORECASE),
+    re.compile(r"disregard\s+the\s+above", re.IGNORECASE),
+    re.compile(r"reveal\s+(your|the)\s+system\s+prompt", re.IGNORECASE),
+    re.compile(r"developer\s+message", re.IGNORECASE),
+    re.compile(r"jailbreak|do\s+anything\s+now|dan\b", re.IGNORECASE),
+]
 
 
 async def _ensure_ready() -> str:
@@ -90,6 +115,24 @@ def _trim_history(history: List[dict]) -> List[dict]:
     return ([system_msg] if system_msg else []) + trimmed
 
 
+def _normalize_user_text(text: str) -> str:
+    clean = (text or "").strip()
+    if len(clean) > MAX_INPUT_CHARS:
+        clean = clean[:MAX_INPUT_CHARS]
+    return clean
+
+
+def _is_prompt_injection(text: str) -> bool:
+    return any(p.search(text) for p in INJECTION_PATTERNS)
+
+
+def _is_out_of_scope(text: str) -> bool:
+    low = text.lower()
+    if any(k in low for k in PORTFOLIO_KEYWORDS):
+        return False
+    return any(h in low for h in OFF_TOPIC_HINTS)
+
+
 def _to_openai_messages(history: List[dict], user_text: str) -> List[dict]:
     messages: List[dict] = []
     for item in history:
@@ -126,15 +169,15 @@ async def _call_nvidia(model: str, history: List[dict], user_text: str) -> str:
     payload = {
         "model": model,
         "messages": _to_openai_messages(history, user_text),
-        "temperature": 0.4,
-        "max_tokens": 260,
+        "temperature": 0.2,
+        "max_tokens": NVIDIA_MAX_TOKENS,
     }
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
     }
     try:
-        async with httpx.AsyncClient(timeout=60.0) as client:
+        async with httpx.AsyncClient(timeout=NVIDIA_TIMEOUT_SECONDS) as client:
             resp = await client.post(url, json=payload, headers=headers)
             resp.raise_for_status()
             data = resp.json()
@@ -195,13 +238,37 @@ def _is_overloaded(exc: Exception) -> bool:
 
 
 async def send_chat(session_id: str, text: str) -> str:
+    text = _normalize_user_text(text)
+    if not text:
+        return "Please share a short question about Sagar's portfolio, projects, or experience."
+
     history, current_model = await get_or_create_chat(session_id)
     await _ensure_ready()
     history = _trim_history(history)
 
+    if _is_prompt_injection(text):
+        response = (
+            "I can not follow prompt-override or hidden-instruction requests. "
+            "Please ask about Sagar's projects, skills, or experience."
+        )
+        history.append({"role": "user", "text": text})
+        history.append({"role": "assistant", "text": response})
+        _SESSIONS[session_id] = (history, current_model)
+        return response
+
+    if _is_out_of_scope(text):
+        response = (
+            "I can only answer questions related to Sagar's portfolio, resume, and public projects. "
+            "Please ask about his skills, experience, or project work."
+        )
+        history.append({"role": "user", "text": text})
+        history.append({"role": "assistant", "text": response})
+        _SESSIONS[session_id] = (history, current_model)
+        return response
+
     # Try NVIDIA primary up to 3 times with small backoff.
     last_exc: Exception | None = None
-    for attempt in range(3):
+    for attempt in range(NVIDIA_RETRIES):
         try:
             response = await _call_nvidia(current_model, history, text)
             history.append({"role": "user", "text": text})
@@ -212,7 +279,7 @@ async def send_chat(session_id: str, text: str) -> str:
             last_exc = exc
             if not _is_overloaded(exc):
                 raise
-            wait = 0.6 * (2 ** attempt) + random.random() * 0.3
+            wait = 0.25 * (2 ** attempt) + random.random() * 0.2
             logger.warning(
                 "NVIDIA %s busy (attempt %d): %s; retry in %.1fs",
                 current_model, attempt + 1, exc, wait,
