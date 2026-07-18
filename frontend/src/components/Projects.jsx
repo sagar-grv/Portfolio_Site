@@ -1,118 +1,223 @@
 import React from "react";
-import { projects } from "../data/mock";
-import { ArrowUpRight, Github, CheckCircle2 } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { featuredProjects, profile } from "../data/mock";
 
-const accentColor = {
-  lime: "#a3e635",
-  amber: "#fbbf24",
-  cyan: "#67e8f9",
-  rose: "#fda4af",
+const pipelineStages = ["Plan", "Generate", "Validate", "Execute", "Report"];
+const healthFeatures = ["Scan", "Interpret", "Share", "Audit"];
+
+const ProjectPreview = ({ project }) => {
+  if (project.preview === "pipeline") {
+    return (
+      <div className="project-visual pipeline-visual" aria-label="Ten-agent QA workflow preview">
+        <div className="preview-topline">
+          <span>AI TestPilot X</span>
+          <span>quality pipeline</span>
+        </div>
+        <div className="pipeline-track">
+          {pipelineStages.map((stage, index) => (
+            <React.Fragment key={stage}>
+              <div className="pipeline-stage">
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                {stage}
+              </div>
+              {index < pipelineStages.length - 1 ? <i aria-hidden="true" /> : null}
+            </React.Fragment>
+          ))}
+        </div>
+        <div className="preview-footline">
+          <span>user story → release decision</span>
+          <strong>CLI · UI · CI</strong>
+        </div>
+      </div>
+    );
+  }
+
+  if (project.preview === "health") {
+    return (
+      <div className="project-visual health-visual" aria-label="HealthVault product flow preview">
+        <div className="preview-topline">
+          <span>HealthVault</span>
+          <span>patient-owned records</span>
+        </div>
+        <div className="health-flow">
+          {healthFeatures.map((feature, index) => (
+            <div key={feature}>
+              <span>0{index + 1}</span>
+              <strong>{feature}</strong>
+            </div>
+          ))}
+        </div>
+        <div className="preview-footline">
+          <span>Health ID · QR sharing · access log</span>
+          <strong>12 languages</strong>
+        </div>
+      </div>
+    );
+  }
+
+  if (project.preview === "docs") {
+    return (
+      <div className="project-visual docs-visual" aria-label="PrivateVoice local document retrieval preview">
+        <div className="preview-topline">
+          <span>PrivateVoice Docs</span>
+          <span>local retrieval</span>
+        </div>
+        <div className="docs-workspace">
+          <div className="docs-sources" aria-hidden="true">
+            <span className="active">01 · research.pdf</span>
+            <span>02 · meeting-notes.md</span>
+            <span>03 · project-brief.docx</span>
+          </div>
+          <div className="docs-answer" aria-hidden="true">
+            <small>Grounded answer</small>
+            <i />
+            <i />
+            <i className="short" />
+            <strong>Sources 01 · 03</strong>
+          </div>
+        </div>
+        <div className="preview-footline">
+          <span>documents stay on-device</span>
+          <strong>IndexedDB · PWA</strong>
+        </div>
+      </div>
+    );
+  }
+
+  if (project.preview === "clinical") {
+    return (
+      <div className="project-visual clinical-visual" aria-label="Clinical trial risk review preview">
+        <div className="preview-topline">
+          <span>Clinical Trial Intelligence</span>
+          <span>risk review</span>
+        </div>
+        <div className="clinical-board">
+          <div className="clinical-signals" aria-hidden="true">
+            <span><i className="risk-high" />Enrollment variance <strong>High</strong></span>
+            <span><i className="risk-review" />Site performance <strong>Review</strong></span>
+            <span><i className="risk-clear" />Protocol quality <strong>Clear</strong></span>
+          </div>
+          <div className="approval-gate" aria-hidden="true">
+            <small>Decision gate</small>
+            <strong>Human review</strong>
+            <span>evidence attached →</span>
+          </div>
+        </div>
+        <div className="preview-footline">
+          <span>rules + agent assistance</span>
+          <strong>approval required</strong>
+        </div>
+      </div>
+    );
+  }
+
+  if (project.preview === "analytics") {
+    return (
+      <div className="project-visual analytics-visual" aria-label="UIDAI anomaly and load analysis preview">
+        <div className="preview-topline">
+          <span>UIDAI Analytics</span>
+          <span>forensic command centre</span>
+        </div>
+        <div className="analytics-board">
+          <div className="analytics-chart" aria-hidden="true">
+            {[42, 68, 51, 88, 61, 74].map((height, index) => (
+              <i key={height} style={{ "--bar-height": `${height}%` }}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+              </i>
+            ))}
+          </div>
+          <div className="analytics-notes" aria-hidden="true">
+            <small>Audit lenses</small>
+            <strong>Benford</strong>
+            <strong>Gini load</strong>
+            <strong>Forecast</strong>
+          </div>
+        </div>
+        <div className="preview-footline">
+          <span>anomaly → concentration → demand</span>
+          <strong>3 analysis modes</strong>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="project-visual reid-visual" aria-label="Person re-identification model comparison">
+      <div className="preview-topline">
+        <span>Siamese Person Re-ID</span>
+        <span>model comparison</span>
+      </div>
+      <div className="model-compare">
+        <div>
+          <small>Model A</small>
+          <strong>Triplet loss</strong>
+          <span>anchor · positive · negative</span>
+        </div>
+        <div>
+          <small>Model B</small>
+          <strong>Contrastive loss</strong>
+          <span>positive · negative pairs</span>
+        </div>
+      </div>
+      <div className="preview-footline">
+        <span>EfficientNet-B0</span>
+        <strong>512-D embeddings</strong>
+      </div>
+    </div>
+  );
 };
 
-const Projects = () => {
-  return (
-    <section id="projects" className="section border-t border-[var(--border)]">
-      <div className="container-x">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+const Projects = () => (
+  <section id="projects" className="section-block projects-section">
+    <div className="site-shell section-layout">
+      <div className="section-number">02</div>
+      <div className="section-content">
+        <div className="section-heading-row">
           <div>
-            <div className="section-eyebrow">
-              <span className="w-6 h-px bg-[var(--accent)]" /> 03 / Selected Work
-            </div>
-            <h2 className="section-title">
-              Projects that pushed me from tutorial to production.
-            </h2>
+            <h2>Selected work</h2>
+            <p>Six projects chosen for depth, evidence and a clear user problem.</p>
           </div>
-          <a
-            href="https://github.com/sagar-grv"
-            target="_blank"
-            rel="noreferrer"
-            className="btn-ghost text-sm"
-          >
-            <Github size={16} /> All repos
+          <a href={profile.socials.github} target="_blank" rel="noreferrer" className="text-link">
+            View all repositories <ArrowRight size={17} />
           </a>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          {projects.map((p, idx) => {
-            const color = accentColor[p.accent] || accentColor.lime;
-            return (
-              <article
-                key={p.id}
-                className="card card-lift group p-6 md:p-7 relative overflow-hidden"
-              >
-                <div
-                  className="absolute -top-24 -right-24 w-56 h-56 rounded-full blur-3xl opacity-25 group-hover:opacity-40 transition-opacity"
-                  style={{ background: color }}
-                />
-                <div className="relative">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="font-mono text-xs tracking-widest text-[var(--text-dim)] uppercase">
-                        {String(idx + 1).padStart(2, "0")} &middot; {p.kind}
-                      </div>
-                      <h3 className="mt-2 font-display text-xl md:text-2xl text-[var(--text)] leading-tight">
-                        {p.title}
-                      </h3>
-                    </div>
-                    <span
-                      className="shrink-0 text-xs font-mono px-2 py-1 rounded-md border border-[var(--border)] text-[var(--text-dim)]"
-                    >
-                      {p.period}
-                    </span>
-                  </div>
-
-                  <p className="mt-4 text-sm text-[var(--text-muted)] leading-relaxed">
-                    {p.description}
-                  </p>
-
-                  <ul className="mt-5 grid sm:grid-cols-3 gap-2">
-                    {p.highlights.map((h) => (
-                      <li
-                        key={h}
-                        className="flex items-start gap-2 text-xs text-[var(--text-muted)]"
-                      >
-                        <CheckCircle2
-                          size={14}
-                          style={{ color }}
-                          className="mt-0.5 shrink-0"
-                        />
-                        <span>{h}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="mt-6 flex flex-wrap gap-2">
-                    {p.stack.map((s) => (
-                      <span key={s} className="chip">
-                        {s}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="mt-6 flex items-center gap-4 pt-5 border-t border-[var(--border)]">
-                    <a
-                      href={p.repo}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 text-sm text-[var(--text-muted)] hover:text-[var(--accent)] transition"
-                    >
-                      <Github size={15} /> Code
-                    </a>
-                    <a
-                      href={p.demo}
-                      className="inline-flex items-center gap-1.5 text-sm text-[var(--text-muted)] hover:text-[var(--accent)] transition"
-                    >
-                      <ArrowUpRight size={15} /> Case study
-                    </a>
-                  </div>
-                </div>
-              </article>
-            );
-          })}
+        <div className="project-list">
+          {featuredProjects.map((project, index) => (
+            <article id={project.id} key={project.id} className="project-row">
+              <div className="project-order">{String(index + 1).padStart(2, "0")}</div>
+              <div className="project-story">
+                <h3>{project.title}</h3>
+                <p className="project-description">{project.description}</p>
+                <p className="project-detail">{project.detail}</p>
+                <ul className="proof-list" aria-label={`${project.title} evidence`}>
+                  {project.proof.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+              <ProjectPreview project={project} />
+              <div className="project-meta">
+                <span>Stack</span>
+                <p>{project.stack.join(" · ")}</p>
+              </div>
+              <div className="project-links">
+                {project.links.map((link) => (
+                  <a key={link.href} href={link.href} target="_blank" rel="noreferrer">
+                    {link.label} <ArrowUpRight size={16} />
+                  </a>
+                ))}
+              </div>
+            </article>
+          ))}
         </div>
+
+        <a href={profile.socials.github} target="_blank" rel="noreferrer" className="projects-end-link">
+          View all repositories <ArrowRight size={19} />
+        </a>
       </div>
-    </section>
-  );
-};
+    </div>
+  </section>
+);
 
 export default Projects;
