@@ -16,14 +16,13 @@ import httpx
 logger = logging.getLogger(__name__)
 
 RESUME_CONTEXT = """
-# Sagar Gurav — Resume
+# Sagar Gurav — Portfolio and Resume Context
 
 ## Profile
-Innovative AI and Machine Learning Engineer with a passion for web development.
-Skilled in building predictive models and cloud systems using Python and
-TensorFlow. Experienced in creating fast and user-friendly e-commerce websites
-to boost online sales. Loves using data to solve real problems and help
-businesses make smart choices.
+AI and Machine Learning engineer focused on agentic workflows, computer vision,
+data products and the product engineering needed to make them useful. Sagar
+combines applied AI, backend development, analytics and clear interfaces, with
+an emphasis on honest evaluation, secure defaults and evidence-backed claims.
 
 ## Contact
 - Email: sagargurav1812@gmail.com
@@ -40,31 +39,37 @@ businesses make smart choices.
 - Class X, Indirapuram Public School — 87.20% (2020–2021).
 
 ## Skills
-- Machine Learning: TensorFlow, Keras, Scikit-learn, PyTorch, CNN, NLP,
-  Computer Vision, Generative AI, OpenCV.
-- Languages: Python, JavaScript, C++, R, SQL, HTML5, CSS3, Liquid.
-- Data & Analytics: Pandas, NumPy, Matplotlib, Plotly, Power BI, EDA, MySQL,
-  Neo4j.
-- Tools & Cloud: Git, GitHub, Streamlit, VS Code, Google Cloud, Firebase,
-  Vercel, Render, Docker, Streamlit.
-- Soft skills: Leadership, Teamwork, Communication, Time Management.
+- AI Engineering: LLMs and RAG, agentic workflows, computer vision, model
+  evaluation, PyTorch, TensorFlow, OpenCV and scikit-learn.
+- Data and Analytics: Python, SQL, Pandas, NumPy, Power BI, Plotly and EDA.
+- Product Engineering: React, FastAPI, Streamlit, Flask, APIs, PostgreSQL,
+  Supabase and Neo4j.
+- Quality and Delivery: Pytest, Playwright, Docker, GitHub Actions, Git,
+  documentation and cloud deployment.
 
-## Projects
-1. Person Re-Identification System (Deep Learning, Computer Vision) — deep
-   learning model extracting 512-dimensional features and matching people with
-   ~89% accuracy. Web app processes 30+ frames per second where users upload
-   photos and find matches in real time.
-2. BankAssist Enterprise (GenAI, Multi-Agent Systems) — smart banking
-   chatbot built with Google Gemini that automates 85% of routine customer
-   support queries. Reduced API calls by 66% and cut customer wait times by
-   40% through agent orchestration + caching.
-3. Deepfake Detection System (Computer Vision) — CNN-based detector for
-   manipulated images/videos with ~85% accuracy, trained on 10,000+ media
-   files. Surfaces frame-level anomalies.
-4. Ayush Synapse (Healthcare AI) — system that connects traditional AYUSH
-   medicine data with modern healthcare records for 500+ patient profiles.
-   Integrates NAMASTE and ICD-11 coding standards for safe cross-database
-   sharing.
+## Selected Projects
+1. AI TestPilot X — autonomous QA platform and published Python CLI that turns
+   a plain-English user story into a 10-agent test pipeline. It generates test
+   cases, runs browser workflows, analyses bugs and produces release decisions.
+   Stack: Python, LangGraph, Playwright, Pytest and Streamlit.
+2. HealthVault — AI-powered medical record management for Indian patients and
+   doctors. It supports report scanning, explanations in 12 Indian languages,
+   Health ID and QR sharing, access controls, row-level security and audit logs.
+   Stack: Next.js, Supabase, PostgreSQL and Gemini.
+3. PrivateVoice Docs — local-first document intelligence PWA with document
+   storage in IndexedDB, local retrieval and visible source excerpts. It sends
+   only selected excerpts to a user-chosen model and has an Android foundation
+   with no INTERNET permission.
+4. Clinical Trial Intelligence — evidence-backed clinical-trial quality and
+   risk analysis combining deterministic rules, role-based views, cross-study
+   comparison and human-approved agentic assistance. It is decision support,
+   not a replacement for clinical judgment.
+5. Siamese Person Re-ID — EfficientNet-B0 comparison of triplet and contrastive
+   loss using 512-dimensional embeddings, with GPU acceleration, AMP and a
+   Streamlit comparison interface.
+6. UIDAI Analytics — forensic Aadhaar analytics using Benford's Law, Gini
+   concentration analysis, anomaly exploration and Random Forest demand
+   forecasting in an interactive Streamlit dashboard.
 
 ## Experience
 - Shopify Web Developer Intern (Dec 2025 – Feb 2026): built and optimised
@@ -82,13 +87,14 @@ businesses make smart choices.
 """.strip()
 
 
-# Repos prioritised for today's (AIML / GenAI / full-stack) focus.
+# Repositories displayed as selected work on the portfolio.
 PRIORITY_REPOS: List[str] = [
-    "ayush-synapse",
-    "hackrx-final-project",
-    "sagar-grv",
-    "contact-book",
-    "DSA_Event_Scheduler_CPP",
+    "ai-testpilot-x",
+    "healthvault",
+    "privatevoice-docs",
+    "clinical-trial-intelligence-nest2.0",
+    "Siamese-Person-ReID",
+    "uidai-analytics",
 ]
 
 GITHUB_USER = "sagar-grv"
@@ -105,7 +111,7 @@ async def _fetch_readme(client: httpx.AsyncClient, repo: str) -> str:
         try:
             r = await client.get(url, timeout=10.0)
             if r.status_code == 200 and r.text.strip():
-                return r.text[:6000]
+                return r.text[:3500]
         except Exception as exc:  # pragma: no cover
             logger.warning("README fetch failed for %s@%s: %s", repo, branch, exc)
     return ""

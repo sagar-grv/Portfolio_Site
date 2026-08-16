@@ -15,9 +15,9 @@ const API = `${BACKEND_URL}/api`;
 const HAS_BACKEND = Boolean(BACKEND_URL.trim());
 
 const SUGGESTIONS = [
-  "Summarise Sagar's strongest projects",
-  "What's his experience with GenAI?",
-  "Which tech stack does he know best?",
+  "Which projects best show Sagar's AI skills?",
+  "How has he used agentic workflows?",
+  "What can he build end to end?",
   "Is he open to internships?",
 ];
 
@@ -36,7 +36,7 @@ const getFriendlyErrorText = (err) => {
 
 const Chatbot = () => {
   const [open, setOpen] = useState(false);
-  const [teaser, setTeaser] = useState(true);
+  const [teaser, setTeaser] = useState(false);
   const [sessionId, setSessionId] = useState(
     () => localStorage.getItem(storageKey) || ""
   );
@@ -129,7 +129,7 @@ const Chatbot = () => {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-[60]">
+    <div className="portfolio-chat fixed bottom-5 right-5 z-[60]">
       {/* Panel */}
       <div
         className={`absolute bottom-16 right-0 w-[min(92vw,380px)] origin-bottom-right transition-all duration-300 ease-out ${
@@ -138,11 +138,11 @@ const Chatbot = () => {
             : "opacity-0 scale-95 pointer-events-none"
         }`}
       >
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-elev)]/95 backdrop-blur-xl shadow-[0_30px_80px_-20px_rgba(0,0,0,0.7)] overflow-hidden">
+        <div className="rounded-md border border-[var(--border-strong)] bg-[var(--bg-elev)]/95 backdrop-blur-xl shadow-[0_30px_80px_-20px_rgba(17,19,24,0.35)] overflow-hidden">
           {/* Header */}
           <div className="flex items-center gap-3 px-4 py-3 border-b border-[var(--border)] bg-[var(--card)]">
             <div className="relative">
-              <div className="w-9 h-9 rounded-full bg-[var(--accent)] text-[#0a0a0b] flex items-center justify-center font-bold font-mono">
+              <div className="w-9 h-9 rounded-sm bg-[var(--accent)] text-white flex items-center justify-center font-bold font-mono">
                 SG
               </div>
               <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-[var(--accent)] border-2 border-[var(--card)] animate-pulse" />
@@ -153,7 +153,7 @@ const Chatbot = () => {
                   Sagar&apos;s AI
                 </span>
                 <span className="text-[10px] font-mono text-[var(--accent)] px-1.5 py-0.5 rounded bg-[var(--accent-soft)] border border-[var(--border)]">
-                  nvidia
+                  grounded
                 </span>
               </div>
               <div className="text-[11px] font-mono text-[var(--text-dim)]">
@@ -227,7 +227,7 @@ const Chatbot = () => {
               <button
                 type="submit"
                 disabled={!input.trim() || sending}
-                className="shrink-0 w-9 h-9 rounded-lg bg-[var(--accent)] text-[#0a0a0b] flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[var(--accent-strong)] transition"
+                className="shrink-0 w-9 h-9 rounded-sm bg-[var(--accent)] text-white flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[var(--accent-strong)] transition"
                 aria-label="Send message"
               >
                 <Send size={15} />
@@ -257,16 +257,10 @@ const Chatbot = () => {
       {/* Launcher */}
       <button
         onClick={() => setOpen((v) => !v)}
-        className="relative w-14 h-14 rounded-full bg-[var(--accent)] text-[#0a0a0b] flex items-center justify-center shadow-[0_18px_50px_-10px_rgba(163,230,53,0.55)] hover:scale-105 active:scale-95 transition-transform group"
+        className="relative w-14 h-14 rounded-md bg-[var(--accent)] text-white flex items-center justify-center shadow-[0_18px_45px_-12px_rgba(38,93,255,0.58)] hover:-translate-y-0.5 active:translate-y-0 transition-transform group"
         aria-label="Open chat"
       >
-        <span className="absolute inset-0 rounded-full bg-[var(--accent)] opacity-50 group-hover:opacity-0 animate-ping" />
         {open ? <X size={22} /> : <MessageCircle size={22} />}
-        {!open && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[var(--bg)] text-[var(--accent)] border border-[var(--border)] text-[10px] font-mono flex items-center justify-center">
-            AI
-          </span>
-        )}
       </button>
     </div>
   );
@@ -284,9 +278,9 @@ const Bubble = ({ msg }) => {
       <div
         className={`max-w-[80%] rounded-xl px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap ${
           isUser
-            ? "bg-[var(--accent)] text-[#0a0a0b] rounded-br-sm"
+            ? "bg-[var(--accent)] text-white rounded-br-sm"
             : msg.error
-            ? "bg-[#2a1a1a] border border-red-900/50 text-[#f5d7d7] rounded-bl-sm"
+            ? "bg-red-50 border border-red-200 text-red-900 rounded-bl-sm"
             : "bg-[var(--card)] border border-[var(--border)] text-[var(--text)] rounded-bl-sm"
         }`}
       >

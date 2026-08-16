@@ -1,149 +1,125 @@
-// Mock data for Sagar Gurav's portfolio
-// This file centralizes all content so backend integration is seamless later.
-
 export const profile = {
   name: "Sagar Gurav",
   handle: "sagar-grv",
   role: "AI / ML Engineer",
-  tagline: "Building intelligent systems that solve real problems.",
+  headline: "I build AI systems that move from experiment to useful product.",
   summary:
-    "Innovative AI and Machine Learning Engineer with a passion for web development. I build predictive models, computer-vision pipelines and GenAI agents using Python and TensorFlow, and ship fast, user-friendly web experiences that turn data into decisions.",
+    "AI & ML engineering, agentic workflows, computer vision and data products—built with clear evidence, reliable software and thoughtful interfaces.",
+  about:
+    "I enjoy building systems where the model is only one part of the product. My work combines applied AI, data, backend engineering and clear interfaces so people can understand and use the result.",
   location: "Shirpur, India",
   availability: "Open to internships & collaborations",
   email: "sagargurav1812@gmail.com",
-  resumeUrl: "#",
   socials: {
     github: "https://github.com/sagar-grv",
     linkedin: "https://www.linkedin.com/in/sagargrv/",
-    instagram: "https://www.instagram.com/sagar_grv/",
     medium: "https://medium.com/@sagargurav1812",
     email: "mailto:sagargurav1812@gmail.com",
   },
 };
 
-export const stats = [
-  { label: "Projects shipped", value: "12+" },
-  { label: "Students mentored", value: "200+" },
-  { label: "Model accuracy peak", value: "89%" },
-  { label: "Workshops organised", value: "4" },
-];
-
-export const skills = [
+export const featuredProjects = [
   {
-    category: "Machine Learning",
-    items: [
-      "TensorFlow",
-      "Keras",
-      "Scikit-learn",
-      "PyTorch",
-      "CNN",
-      "NLP",
-      "Computer Vision",
-      "Generative AI",
-      "OpenCV",
-    ],
-  },
-  {
-    category: "Languages",
-    items: ["Python", "JavaScript", "C++", "R", "SQL", "HTML5", "CSS3", "Liquid"],
-  },
-  {
-    category: "Data & Analytics",
-    items: [
-      "Pandas",
-      "NumPy",
-      "Matplotlib",
-      "Plotly",
-      "Power BI",
-      "EDA",
-      "MySQL",
-      "Neo4j",
-    ],
-  },
-  {
-    category: "Tools & Cloud",
-    items: [
-      "Git",
-      "GitHub",
-      "Streamlit",
-      "VS Code",
-      "Google Cloud",
-      "Firebase",
-      "Vercel",
-      "Render",
-      "Docker",
-    ],
-  },
-];
-
-export const projects = [
-  {
-    id: "person-reid",
-    title: "Person Re-Identification System",
-    kind: "Deep Learning · Computer Vision",
-    period: "Mar 2026 — Apr 2026",
+    id: "ai-testpilot-x",
+    title: "AI TestPilot X",
+    shortTitle: "AI TestPilot X",
     description:
-      "Deep learning pipeline that extracts 512-dimensional embeddings and matches people across camera feeds with 89% accuracy. Ships with a real-time web app processing 30+ frames per second.",
-    highlights: [
-      "89% re-identification accuracy",
-      "512-D feature embeddings",
-      "Real-time web app @ 30+ FPS",
+      "Autonomous QA platform and CLI that turns a plain-English user story into a 10-agent test pipeline.",
+    detail:
+      "Generates test cases, executes browser workflows, analyses bugs and produces a release decision through a published Python package, CLI and Streamlit dashboard.",
+    stack: ["Python", "LangGraph", "Playwright", "Pytest", "Streamlit"],
+    proof: ["10-agent pipeline", "Published on PyPI", "Live dashboard + docs"],
+    preview: "pipeline",
+    links: [
+      { label: "Live app", href: "https://ai-testpilot-x.streamlit.app/" },
+      { label: "GitHub", href: "https://github.com/sagar-grv/ai-testpilot-x" },
     ],
-    stack: ["Python", "PyTorch", "OpenCV", "FastAPI", "React"],
-    repo: "https://github.com/sagar-grv",
-    demo: "#",
-    accent: "lime",
   },
   {
-    id: "bankassist",
-    title: "BankAssist Enterprise",
-    kind: "GenAI · Multi-Agent Systems",
-    period: "Feb 2026 — Mar 2026",
+    id: "healthvault",
+    title: "HealthVault",
+    shortTitle: "HealthVault",
     description:
-      "A smart banking chatbot built on Google Gemini that automates 85% of routine customer support queries. Agent orchestration + caching reduced API calls by 66% and wait times by 40%.",
-    highlights: [
-      "85% queries automated",
-      "66% reduction in API calls",
-      "40% faster response time",
+      "AI-powered medical record management with 12-language interpretation and secure doctor sharing.",
+    detail:
+      "Patients can scan reports, receive plain-language explanations and share selected records through a Health ID, QR flow and access controls.",
+    stack: ["Next.js", "Supabase", "Gemini", "PostgreSQL"],
+    proof: ["12 Indian languages", "Patient + doctor flows", "RLS and audit logging"],
+    preview: "health",
+    links: [
+      { label: "GitHub", href: "https://github.com/sagar-grv/healthvault" },
     ],
-    stack: ["Python", "Gemini API", "LangChain", "FastAPI", "Streamlit"],
-    repo: "https://github.com/sagar-grv",
-    demo: "#",
-    accent: "amber",
   },
   {
-    id: "deepfake",
-    title: "Deepfake Detection System",
-    kind: "Computer Vision · CNN",
-    period: "Oct 2025 — Nov 2025",
+    id: "privatevoice-docs",
+    title: "PrivateVoice Docs",
+    shortTitle: "PrivateVoice Docs",
     description:
-      "CNN-based detector trained on 10,000+ media files to spot manipulated images and videos with 85% accuracy. Surfaces frame-level anomalies and confidence scores.",
-    highlights: [
-      "85% detection accuracy",
-      "10,000+ training samples",
-      "Frame-level anomaly maps",
+      "Local-first document intelligence for grounded chat with visible source excerpts.",
+    detail:
+      "The web PWA keeps documents in IndexedDB, performs retrieval locally and sends only selected excerpts to a user-chosen model. An Android client establishes the offline storage foundation.",
+    stack: ["PWA", "IndexedDB", "Local retrieval", "Android"],
+    proof: ["Local document index", "Visible source excerpts", "No project backend"],
+    preview: "docs",
+    links: [
+      { label: "Live PWA", href: "https://sagar-grv.github.io/privatevoice-docs/" },
+      { label: "GitHub", href: "https://github.com/sagar-grv/privatevoice-docs" },
     ],
-    stack: ["Python", "TensorFlow", "Keras", "OpenCV", "NumPy"],
-    repo: "https://github.com/sagar-grv",
-    demo: "#",
-    accent: "cyan",
   },
   {
-    id: "ayush-synapse",
-    title: "Ayush Synapse",
-    kind: "Healthcare AI · Data Integration",
-    period: "Sep 2025 — Oct 2025",
+    id: "clinical-trial-intelligence",
+    title: "Clinical Trial Intelligence",
+    shortTitle: "Clinical Trial Intelligence",
     description:
-      "Bridges traditional AYUSH medicine data with modern EHR systems for 500+ patient profiles. Integrates NAMASTE and ICD-11 coding standards for safe cross-database sharing.",
-    highlights: [
-      "500+ patient profiles linked",
-      "NAMASTE + ICD-11 mapping",
-      "FHIR-ready exchange",
+      "Human-in-the-loop clinical trial risk analysis with evidence-backed agentic assistance.",
+    detail:
+      "Combines deterministic quality rules, role-based views and AI-assisted explanations, comparison and drafting without replacing clinical judgment.",
+    stack: ["Python", "Gemini", "SQLAlchemy", "Plotly"],
+    proof: ["Evidence-backed rules", "Human approval gates", "Cross-study comparison"],
+    preview: "clinical",
+    links: [
+      {
+        label: "Live app",
+        href: "https://agens-clinical-trial-intelligence-nest20.streamlit.app/",
+      },
+      {
+        label: "GitHub",
+        href: "https://github.com/sagar-grv/clinical-trial-intelligence-nest2.0",
+      },
     ],
-    stack: ["Python", "Flask", "MongoDB", "Neo4j", "HTML5"],
-    repo: "https://github.com/sagar-grv/ayush-synapse",
-    demo: "#",
-    accent: "rose",
+  },
+  {
+    id: "siamese-person-reid",
+    title: "Siamese Person Re-ID",
+    shortTitle: "Siamese Person Re-ID",
+    description:
+      "EfficientNet-B0 comparison of triplet and contrastive loss using 512-dimensional embeddings.",
+    detail:
+      "A Streamlit interface compares both models side by side, with GPU acceleration and automatic mixed precision for training and inference experiments.",
+    stack: ["PyTorch", "OpenCV", "Streamlit", "AMP"],
+    proof: ["Triplet vs contrastive loss", "512-D embeddings", "EfficientNet-B0"],
+    preview: "reid",
+    links: [
+      {
+        label: "GitHub",
+        href: "https://github.com/sagar-grv/Siamese-Person-ReID",
+      },
+    ],
+  },
+  {
+    id: "uidai-analytics",
+    title: "UIDAI Analytics",
+    shortTitle: "UIDAI Analytics",
+    description:
+      "Forensic Aadhaar analytics using Benford's Law, Gini analysis and demand forecasting.",
+    detail:
+      "An interactive Streamlit command centre explores behavioural patterns, anomaly signals, infrastructure concentration and Random Forest demand forecasts.",
+    stack: ["Python", "Streamlit", "Random Forest", "Plotly"],
+    proof: ["Benford forensic audit", "Gini load analysis", "Demand simulator"],
+    preview: "analytics",
+    links: [
+      { label: "GitHub", href: "https://github.com/sagar-grv/uidai-analytics" },
+    ],
   },
 ];
 
@@ -152,20 +128,22 @@ export const experience = [
     role: "Shopify Web Developer Intern",
     org: "Freelance / Agency",
     period: "Dec 2025 — Feb 2026",
+    summary:
+      "Built and optimized mobile-first storefronts, custom Liquid sections and performance-focused experiments.",
     points: [
-      "Built and optimised e-commerce storefronts that load 40% faster and run smoother on mobile.",
-      "Used analytics to help 5+ online stores improve Google ranking and retain customers.",
-      "Implemented custom Liquid sections, performance budgets and A/B variants.",
+      "Improved storefront load performance and mobile usability.",
+      "Used analytics and iterative experiments across 5+ online stores.",
     ],
   },
   {
     role: "Google Student Ambassador — College Coordinator",
-    org: "Google",
+    org: "Google student community",
     period: "Jul 2025 — Jul 2026",
+    summary:
+      "Taught 200+ students and organised 4 workshops around Google Cloud, Gemini and practical AI.",
     points: [
-      "Taught 200+ students the fundamentals of Google Cloud, Gemini and modern AI tooling.",
-      "Organised 4 major workshops and hackathons around GenAI and cloud.",
-      "Led a campus-wide tech community with weekly builder sessions.",
+      "Led campus sessions that translated AI tools into hands-on learning.",
+      "Coordinated workshops, hackathons and recurring builder sessions.",
     ],
   },
 ];
@@ -175,65 +153,42 @@ export const education = [
     school: "SVKM'S NMIMS MPSTME, Shirpur",
     degree: "B.Tech, Artificial Intelligence & Machine Learning",
     period: "Jul 2023 — Present",
-    detail: "CGPA 2.89 / 4.0 · Class of 2027",
+    detail: "Class of 2027",
+  },
+];
+
+export const capabilities = [
+  {
+    category: "AI Engineering",
+    icon: "brain",
+    items: ["LLMs & RAG", "Agentic workflows", "Computer vision", "Model evaluation"],
   },
   {
-    school: "Indirapuram Public School",
-    degree: "Senior Secondary (Class XII)",
-    period: "Apr 2022 — Apr 2023",
-    detail: "82.83% — Science stream",
+    category: "Data & Analytics",
+    icon: "chart",
+    items: ["Python & SQL", "Pandas", "Power BI", "Plotly"],
   },
   {
-    school: "Indirapuram Public School",
-    degree: "Secondary (Class X)",
-    period: "Apr 2020 — Apr 2021",
-    detail: "87.20%",
+    category: "Product Engineering",
+    icon: "code",
+    items: ["React", "FastAPI", "Streamlit", "PostgreSQL"],
   },
+  {
+    category: "Quality & Delivery",
+    icon: "shield",
+    items: ["Pytest & Playwright", "Docker", "GitHub Actions", "Documentation"],
+  },
+];
+
+export const highlights = [
+  { value: "200+", label: "students taught" },
+  { value: "4", label: "workshops organised" },
+  { value: "12", label: "Indian languages in HealthVault" },
 ];
 
 export const certifications = [
-  {
-    name: "AI Agents Intensive Course",
-    issuer: "Kaggle × Google",
-    year: "2025",
-  },
-  {
-    name: "Generative AI Mastermind",
-    issuer: "Outskill",
-    year: "2025",
-  },
-  {
-    name: "SIH 2025 — Internal Hackathon Finalist",
-    issuer: "Smart India Hackathon",
-    year: "2025",
-  },
-  {
-    name: "EY Techathon 6.0 — Certificate of Appreciation",
-    issuer: "Ernst & Young",
-    year: "2025",
-  },
+  { name: "AI Agents Intensive Course", issuer: "Kaggle × Google", year: "2025" },
+  { name: "Generative AI Mastermind", issuer: "Outskill", year: "2025" },
+  { name: "SIH 2025 Internal Hackathon Finalist", issuer: "Smart India Hackathon", year: "2025" },
+  { name: "EY Techathon 6.0 — Certificate of Appreciation", issuer: "EY", year: "2025" },
 ];
-
-export const achievements = [
-  "SIH 2025 Internal Hackathon — Finalist Team",
-  "89% accuracy in Person Re-Identification benchmark",
-  "Automated 85% of routine support queries with GenAI agents",
-  "Mentored 200+ students on Google Cloud & AI",
-  "Organised 4 major workshops and hackathons",
-  "Trained a deepfake detector on 10,000+ media files",
-];
-
-// Terminal code block used in the Hero section
-export const heroTerminal = {
-  title: "~/sagar/about.py",
-  lines: [
-    { t: "comment", v: "# whoami" },
-    { t: "code", v: "engineer = {" },
-    { t: "code", v: '  "name": "Sagar Gurav",' },
-    { t: "code", v: '  "focus": ["GenAI", "Computer Vision", "Web"],' },
-    { t: "code", v: '  "stack": ["Python", "TensorFlow", "React"],' },
-    { t: "code", v: '  "status": "building",' },
-    { t: "code", v: "}" },
-    { t: "comment", v: "# run(engineer)  →  ships shippable AI" },
-  ],
-};
